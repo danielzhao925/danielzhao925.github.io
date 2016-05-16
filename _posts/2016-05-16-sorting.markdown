@@ -1,0 +1,108 @@
+---
+layout: post
+title:  "Codility lession6 - 1"
+date:   2016-05-16 15:09:43 +0800
+categories: Codility
+---
+
+
+1. zero-indexed array A consisting of N integers is given. A triplet (P, Q, R) is triangular if 0 ≤ P < Q < R < N and:
+
+A[P] + A[Q] > A[R],
+A[Q] + A[R] > A[P],
+A[R] + A[P] > A[Q].
+For example, consider array A such that:
+
+  A[0] = 10    A[1] = 2    A[2] = 5
+  A[3] = 1     A[4] = 8    A[5] = 20
+Triplet (0, 2, 4) is triangular.
+
+Write a function:
+
+int solution(int A[], int N);
+
+that, given a zero-indexed array A consisting of N integers, returns 1 if there exists a triangular triplet for this array and returns 0 otherwise.
+
+For example, given array A such that:
+
+  A[0] = 10    A[1] = 2    A[2] = 5
+  A[3] = 1     A[4] = 8    A[5] = 20
+the function should return 1, as explained above. Given array A such that:
+
+  A[0] = 10    A[1] = 50    A[2] = 5
+  A[3] = 1
+the function should return 0.
+
+Assume that:
+
+N is an integer within the range [0..100,000];
+each element of array A is an integer within the range [−2,147,483,648..2,147,483,647].
+Complexity:
+
+expected worst-case time complexity is O(N*log(N));
+expected worst-case space complexity is O(N), beyond input storage (not counting the storage required for input arguments).
+Elements of input arrays can be modified.
+
+soulition:
+
+On one hand, there is no false triangular. Since the array is sorted, we already know A[index] < = A[index+1] <= A[index+2], and all values are positive. A[index] <= A[index+2], so it must be true that A[index] < A[index+1] + A[index+2]. Similarly, A[index+1] < A[index] + A[index+2]. Finally, we ONLY need to check A[index]+A[index+1] > A[index+2] to confirm the existence of triangular.
+
+On the other hand, there is no underreporting triangular. If the inequality can hold for three out-of-order elements, to say, A[index]+A[index+m] > A[index+n], where n>m>1. Again, because the array is sorted, we must have A[index] < = A[index+m-1] and A[index+m+1] <= A[index + n]. So A[index+m-1] +A[index+m] >= A[index]+A[index+m] > A[index+n] >= A[index+m+1]. After simplification, A[index+m-1] +A[index+m] > A[index+m+1]. In other words, if we have any inequality holding for out-of-order elements, we MUST have AT LEAST an inequality holding for three consecutive elements.
+
+
+void mergearray(int a[], int first, int mid, int last, int temp[])
+{
+//    printf("3: %d %d", first,last);
+//    printf("\n");
+
+    int i = first, j = mid + 1;
+    int m = mid,   n = last;
+    int k = 0;
+
+    while (i <= m && j <= n)
+    {
+        if (a[i] <= a[j])
+            temp[k++] = a[i++];
+        else
+            temp[k++] = a[j++];
+    }
+
+    while (i <= m)
+        temp[k++] = a[i++];
+
+    while (j <= n)
+        temp[k++] = a[j++];
+
+    for (i = 0; i < k; i++)
+        a[first + i] = temp[i];
+}
+void mergeSort(int a[], int first, int last, int temp[])
+{
+    if (first < last)
+    {
+        int mid = (first + last) / 2;
+      //  printf("1: %d %d", first,mid);
+       // printf("\n");
+        mergeSort(a, first, mid, temp);    //左边有序
+       // printf("2: %d %d", mid+1,last);
+       // printf("\n");
+        mergeSort(a, mid + 1, last, temp); //右边有序
+        mergearray(a, first, mid, last, temp); //再将二个有序数列合并
+    }
+}
+
+int solution(int A[], int N){
+
+    int n = 0;
+    int *x = (int*)malloc(N*sizeof(int));;
+    mergeSort(A, 0, N - 1, x);
+    if (N > 2) {
+        for(int i=0;i<(N - 2);i++){
+            if (A[i] > 0 && A[i] > A[i+2] - A[i+1]) {
+                return 1;
+            }
+
+        }
+    }
+    return n;
+}
